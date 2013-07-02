@@ -1,0 +1,10 @@
+name = Generation Plus
+description = OpenSoft theme for generation plus
+version = VERSION
+core = 7.x
+stylesheets[all][] = css/layout.css
+regions[header] = Header
+regions[footer] = Footer
+regions[content] = Content
+regions[help] = Help
+regions[login] = Login

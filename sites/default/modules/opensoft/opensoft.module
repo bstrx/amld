@@ -1,0 +1,49 @@
+<?php
+// $Id: opensoft.module Exp $
+
+/**
+ * Returns info about user currently logged in Moodle.
+ * Looks like single sign-on but in fact drupal only shows user from moodle.
+ */
+function getActiveMoodleUser() {
+    if (isset($_COOKIE['MoodleSession'])) {
+        $sessionId = $_COOKIE['MoodleSession'];
+        $moodleDb = 'moodle';
+        $sessionTable = 'mdl_sessions';
+        $userTable = 'mdl_user';
+        $moodleSessionTimeout = 2 * 60 * 60; //must be equal to moodle 'sessiontimeout' param
+        $currentTime = time();
+
+        $q = "SELECT userid
+            FROM {$moodleDb}.{$sessionTable}
+            WHERE sid = '{$sessionId}'
+              AND timemodified + {$moodleSessionTimeout} > {$currentTime}";
+        $result = db_query($q);
+        $userId = $result->fetchAssoc();
+        if ($userId) {
+            $q = "SELECT id, firstname, lastname
+                FROM {$moodleDb}.{$userTable}
+                WHERE id = {$userId['userid']}";
+            $result = db_query($q);
+            $userInfo = $result->fetchAssoc();
+            return $userInfo;
+        } else unset($_COOKIE['MoodleSession']);
+    }
+
+    return false;
+}
+
+
+function opensoft_simplenews_subscribe_user($subscriber, $subscription) {
+    setcookie("simplenews", $subscriber->mail);
+}
+
+function checkSimplenewsSubscription () {
+    if (isset($_COOKIE['simplenews']) && $_COOKIE['simplenews']) {
+        return true;
+    }
+
+    return false;
+}
+
+
